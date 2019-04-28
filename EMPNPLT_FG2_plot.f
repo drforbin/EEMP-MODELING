@@ -3,9 +3,10 @@ C     PROGRAM CONTRL (INPUT,OUTFLT,PLOT)                                CNTL  10
 C                                                                       CNTL  20
 C     THIS PROGRAM CCNTROLS THE SUBROUTINES                             CNTL  30
 C                                                                       CNTL  40
-       INTEGER OUX                                                      CNTL  60
-       COMMON OUX, AP, BP, RNP, TOP                                     CNTL  50
-       DIMENSION E(192),TIMX(192),STORE2(500)                           CNTL  70
+      INTEGER OUX                                                       CNTL  60
+      COMMON OUX, AP, BP, RNP, TOP                                      CNTL  50
+      DIMENSION E(192),TIMX(192),STORE2(500)                            CNTL  70
+C ARGS (TO BE SEPERATED BY WHITESPACE)    
 C                                                                       CNTL  80
 C      X,Y,Z IS THL TARGET LCCATION IN METERS                           CNTL  90
 C           FOR THE NORTHERN HEMISPHERE                                 CNTL 100
@@ -30,16 +31,17 @@ C      OUX=0 ==> PRINT PEAK VALUE AND ARRAYS                            CNTL 280
 C      OUX=1 ==> PRINT PEAK VALUE AND MAKE PLOT                         CNTL 290
 C      OUX=2 ==> PRINT EVERYTHING AND MAKE PLOT                         CNTL 300
 C      OUX=3 ==> PRINT EVERYTHING                                       CNTL 310
-C       
+C                INSERT LF 
 C 10     ITER IS INTERATION   
+C                INSERT LF
 C 11     AP CONSTANT                                                    CNTL 320
 C 12     BP CONSTANT
 C 13     RNP CONSTANT
 C 14     TOP CONSTANT
 C
-       READ 1001,X,Y,Z,HOB,GAMYLD,BFIELD,BANGLE,NDELR,OUX               CNTL 330
-       R=SQRT(X*X+Y*Y+(HOB*1000.-Z)**2)                                 CNTL 340
-       PRINT 2006,GAMYLD,HOB,X,Y,Z,R                                    CNTL 350
+      READ 1001,X,Y,Z,HOB,GAMYLD,BFIELD,BANGLE,NDELR,OUX                CNTL 330
+      R=SQRT(X*X+Y*Y+(HOB*1000.-Z)**2)                                  CNTL 340
+      PRINT 2006,GAMYLD,HOB,X,Y,Z,R                                     CNTL 350
 C                                                                       CNTL 360
 C         SET UP DEFAULT VALUES                                         CNTL 370
 C                                                                       CNTL 380
@@ -97,19 +99,19 @@ C                                                                       CNTL 870
 C                                                                       CNTL 900
 C          CALCULATE EFIELD AT TARGET                                   CNTL 910
 C                                                                       CNTL 929
-       IF(R.LE.RMAX) GOTO 3                                             CNTL 930
-       DO 1 I=1,190                                                     CNTL 940
- 1     E(I)=E(I)*RMAX/R                                                 CNTL 950
+      IF(R.LE.RMAX) GOTO 3                                              CNTL 930
+      DO 1 I=1,190                                                      CNTL 940
+ 1    E(I)=E(I)*RMAX/R                                                  CNTL 950
 C                                                                       CNTL 960
 C          FIND PEAK VALUE OF EFIELD                                    CNTL 970
 C                                                                       CNTL 980
- 3     BIG=E(1)                                                         CNTL 991
-       IT=1                                                             CNTL 992
-       DO 2 I=2,190                                                     CNTL1001
-       IF(E(I).LT.BIG) GOTO 2                                           CNTL1011
-       BIG=E(I)                                                         CNTL1022
-       IT=I                                                             CNTL1023
- 2     CONTINUE                                                         CNTL1030
+ 3    BIG=E(1)                                                          CNTL 991
+      IT=1                                                              CNTL 992
+      DO 2 I=2,190                                                      CNTL1001
+      IF(E(I).LT.BIG) GOTO 2                                            CNTL1011
+      BIG=E(I)                                                          CNTL1022
+      IT=I                                                              CNTL1023
+ 2    CONTINUE                                                          CNTL1030
 C                                                                       CNTL1040
 C          PRINT OUTPUT                                                 CNTL1050
 C                                                                       CNTL1060
