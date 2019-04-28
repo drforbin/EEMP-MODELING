@@ -1,3 +1,4 @@
 set xlabel 'SHAKES'
+set grid
 set ylabel 'V/METER'
 plot 'empplot.dat' with lines
