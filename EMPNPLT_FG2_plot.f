@@ -5,7 +5,7 @@ C     THIS PROGRAM CCNTROLS THE SUBROUTINES                             CNTL  30
 C                                                                       CNTL  40
       INTEGER OUX                                                       CNTL  60
       COMMON OUX, AP, BP, RNP, TOP                                      CNTL  50
-      DIMENSION E(192),TIMX(192),STORE2(500)                            CNTL  70
+      DIMENSION E(192),TIMX(192),STORE2(10000)                          CNTL  70
 C ARGS (TO BE SEPERATED BY WHITESPACE)    
 C                                                                       CNTL  80
 C      X,Y,Z IS THL TARGET LCCATION IN METERS                           CNTL  90
@@ -48,6 +48,9 @@ C                                                                       CNTL 380
       IF(BANGLE.EQ.0.) BANGLE=40.                                       CNTL 390
       IF(BFIELD.EQ.0.) BFIELD=0.00002                                   CNTL 400
       IF(NDELR.EQ.0) NDELR=50                                           CNTL 410
+      IF(NDELR.GT.10000) PRINT 1002
+      IF(NDELR.GT.10000) STOP
+      PRINT 1003,NDELR
 C                                                                       CNTL 420
 C         CONVERT DATA TO MKS UNITS                                     CNTL 430
 C                                                                       CNTL 440
@@ -92,7 +95,7 @@ C                                                                       CNTL 720
       YRMAX=TB*Y                                                        CNTL 830
       RMAX=SQRT(XRMAX**2+YRMAX**2+(ZRMAX-HOB)**2)                       CNTL 840
 C                                                                       CNTL 850
-C         CALCULATE EFIELD AT BOTTOM OF ABSORBTICN REGION               CNTL 860
+C         CALCULATE EFIELD AT BOTTOM OF ABSORPTION REGION               CNTL 860
 C                                                                       CNTL 870
       CALL EFIELD(E,TIMX,RMIN,RMAX,NDELR,HOB,A,THETA,OMEGA,GAMYLD,      CNTL 889
      1STORE2,NMAX)                                                      CNTL 891
@@ -130,7 +133,9 @@ C           NEW SUBROUTINE FOR CREATING GNUPLOT FILE
 C           CALL ADDED BY MERLYN (DRFORBIN) COUSINS
       CALL PLOT(E,TIMX,BIG,NMAX)
       STOP                                                              CNTL1180
- 1001 FORMAT(7F10.0,2I5)                                                CNTL1190
+ 1001 FORMAT(7F10.0,2I6)                                                CNTL1190
+ 1002 FORMAT(5X,"NDELR IS OVER LIMIT"///)
+ 1003 FORMAT(5X,"NDELR VALUE:",I5/)
  2010 FORMAT(//5X,"PEAK OCCURRED AT",1PE11.4," SHAKES",4X'Step Number:',CNTL1201
      11X, I4)
  2009 FORMAT(5X,"DIRECT WAVE IS BEING CALCULATED"/////)                 CNTL1210
@@ -146,7 +151,7 @@ C           CALL ADDED BY MERLYN (DRFORBIN) COUSINS
      2      /5X,"* * * * * * * * * * * * * * * * * * * * * * * * * *"//)CNTL1310
  2004 FORMAT(19(10(3X,1PE10.3)/))                                       CNTL1320
  2003 FORMAT(///5X,"EFIELD VALUES AT TARGET (IN V/M) ARE"//)            CNTL1330
- 2002 FORMAT(19(10(4X,F5.1,4X)/))                                       CNTL1340
+ 2002 FORMAT(19(10(4X,F5.2,4X)/))                                       CNTL1340
  2001 FORMAT("   TIMES USED (IN SHAKES) ARE"//)                         CNTL1350
       END                                                               CNTL1360
 C
@@ -157,7 +162,7 @@ C                                                                       EFLD  30
 C                                                                       EFLD  40
 C          CALCULATE THE EFIELD IN THE ABSORPTION REGION                EFLD  50
 C                                                                       EFLD  60
-      DIMENSION E(190),TIMX(190),STORE2(500)                            EFLD  71
+      DIMENSION E(190),TIMX(190),STORE2(10000)                            EFLD  71
       REAL JTHETA,JPHI                                                  EFLD  80
       INTEGER OUX                                                       EFLD  90
       COMMON OUX,AP,BP,RNP,TOP                                          EFLD 100
@@ -171,10 +176,12 @@ C                                                                       EFLD 170
 C         INITIALIZE ARRAYS AND CONSTANTS                               EFLD 180
 C                                                                       EFLD 190
       READ 101,AP,BP,RNP,TOP                                            EFLD 200
-  101 FORMAT(4F10.0)                                                    EFLD 210
+  101 FORMAT(4F10.0)                                                     EFLD 210
       DO 61 J=1,100                                                     EFLD 220
       E(J)=0.0                                                          EFLD 230
-      TIMX(J)=0.1*J                                                     EFLD 231
+C      TIMX(J)=0.1*J                                                     EFLD 231
+C         CHANGED 0.1 SHAKES TO 0.01 DF
+      TIMX(J)=0.1*J
   61  CONTINUE                                                          EFLD 240
       DO 71 J=101,190                                                   EFLD 250
       E(J)=0.0                                                          EFLD 260
@@ -197,8 +204,8 @@ C          OUTSIOE LOOP IS FOR CALCULATION IN RETARDED TIME             EFLD 340
 C          INSIDE LOOP IS FOR INTEGRATION IN R AT EACH TIME STEP        EFLD 350
 C                                                                       EFLD 360
       DO 21 I=1,190                                                     EFLD 370
-      T=T+(1.E-9)*DT                                                    EFLD 371
-      TIMX(I)=T*(1.E8)                                                  EFLD 372
+C      T=T+(1.E-9)*DT                                                   EFLD 371
+C      TIMX(I)=T*(1.E8)                                                 EFLD 372
       IT=I                                                              EFLD 380
       IF(I.GT.ITER) GOTO 42                                             EFLD 390
       TP=-DELTAR/2.88E8                                                 EFLD 400
@@ -206,7 +213,8 @@ C                                                                       EFLD 360
       SIGMA=0.                                                          EFLD 402
       STORE1=0.                                                         EFLD 403
       DO 31 K=1,NDELR                                                   EFLD 410
-      CALL COMPTN(JTHETA,JPHI,T,R,A,THETA,OMEGA,HOB,GAMYLD,TP,PRI,PRI2) EFLD 420
+      CALL COMPTN(JTHETA,JPHI,TIMX(I)*1.E-8,R,A,THETA,OMEGA,            EFLD 420
+     1HOB,GAMYLD,TP,PRI,PRI2) 
       CALL CONDCT(SIGMA,PRI,DTP,DT,HOB,R,A,STORE1,STORE2,K,NDELR,PRI2)  EFLD 430
       CALL RNGKUT(ETHENW,ETHE,R,DELTAR,SIGMA,JTHETA)                    EFLD 440
       CALL RNGKUT(EPHINW,EPHI,R,DELTAR,SIGMA,JPHI)                      EFLD 450
@@ -254,7 +262,7 @@ C                                                                       EFLD 780
       E(IT-5)=0.0                                                       EFLD 795
       RETURN                                                            EFLD 800
  100  FORMAT (I3)                                                       EFLD 810
- 5    FORMAT("   I =",I4,"     TIME =",F6.1," SHAKES     E(T,RMAX) =",  EFLD 820
+ 5    FORMAT("   I =",I4,"     TIME =",F6.2," SHAKES     E(T,RMAX) =",  EFLD 820
      11PE10.3," VOLTS/METER     SIGMA =",1PE10.3," MHO/METER")          EFLD 830
  201  FORMAT(//5X,"ITERATION TERMINATED AFTER",1PE11.4, " SHAKES"//)    EFLD 840
  301  FORMAT(//15X,"*****"/15X,"***** SOLUTION HAS GONE UNSTABLE"       EFLD 850
@@ -266,7 +274,7 @@ C
      1PRI2)                                                             CNCT  20
 C                                                                       CNCT  30
 C         CALCULATES SIGMA AFTER FINDING                                CNCT  40
-C         NSECCNOARY FROM NPRIMARV                                      CNCT  50
+C         NSECONDARY FROM NPRIMARY                                      CNCT  50
 C                                                                       CNCT  60
 C         STORE1 CCNTAINS INTEGRAL FOR NEGATIVE TAU                     CNCT  70
 C         STORE2 CCNTAINS INTEGRAL FOR POSITIVE TAU                     CNCT  80
