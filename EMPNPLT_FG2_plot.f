@@ -4,7 +4,7 @@ C                                                                       CNTL  20
 C     THIS PROGRAM CCNTROLS THE SUBROUTINES                             CNTL  30
 C                                                                       CNTL  40
       INTEGER OUX                                                       CNTL  60
-      COMMON OUX, AP, BP, RNP, TOP                                      CNTL  50
+      COMMON OUX, AP, BP, RNP, TOP,PRECISION                                      CNTL  50
       DIMENSION E(192),TIMX(192),STORE2(10000)                          CNTL  70
 C ARGS (TO BE SEPERATED BY WHITESPACE)    
 C                                                                       CNTL  80
@@ -45,6 +45,7 @@ C
 C                                                                       CNTL 360
 C         SET UP DEFAULT VALUES                                         CNTL 370
 C                                                                       CNTL 380
+      PRECISION=.1
       IF(BANGLE.EQ.0.) BANGLE=40.                                       CNTL 390
       IF(BFIELD.EQ.0.) BFIELD=0.00002                                   CNTL 400
       IF(NDELR.EQ.0) NDELR=50                                           CNTL 410
@@ -162,10 +163,10 @@ C                                                                       EFLD  30
 C                                                                       EFLD  40
 C          CALCULATE THE EFIELD IN THE ABSORPTION REGION                EFLD  50
 C                                                                       EFLD  60
-      DIMENSION E(190),TIMX(190),STORE2(10000)                            EFLD  71
+      DIMENSION E(190),TIMX(190),STORE2(10000)                          EFLD  71
       REAL JTHETA,JPHI                                                  EFLD  80
       INTEGER OUX                                                       EFLD  90
-      COMMON OUX,AP,BP,RNP,TOP                                          EFLD 100
+      COMMON OUX,AP,BP,RNP,TOP,PRECISION                                EFLD 100
 C                                                                       EFLD 110
 C     ITER IS TIME OF ITERATION IN SHAKES 10<=ITER<=100                 EFLD 120
 C     READ ITER AND CHANGE IT TO NUMBER OF TIME STEPS                   EFLD 130
@@ -176,12 +177,12 @@ C                                                                       EFLD 170
 C         INITIALIZE ARRAYS AND CONSTANTS                               EFLD 180
 C                                                                       EFLD 190
       READ 101,AP,BP,RNP,TOP                                            EFLD 200
-  101 FORMAT(4F10.0)                                                     EFLD 210
+  101 FORMAT(4F10.0)                                                    EFLD 210
       DO 61 J=1,100                                                     EFLD 220
       E(J)=0.0                                                          EFLD 230
-C      TIMX(J)=0.1*J                                                     EFLD 231
+C      TIMX(J)=0.1*J                                                    EFLD 231
 C         CHANGED 0.1 SHAKES TO 0.01 DF
-      TIMX(J)=0.1*J
+      TIMX(J)=PRECISION*J
   61  CONTINUE                                                          EFLD 240
       DO 71 J=101,190                                                   EFLD 250
       E(J)=0.0                                                          EFLD 260
@@ -294,7 +295,7 @@ C
 C                                                                       CMTN  30
 C         CALCULATE THE TWO COMPONENTS OF THE                           CMTN  40
 C         COMPTON CURRENT AT GIVEN T AND R                              CMTN  50
-C         CALCULATE NUMBER OF PRINARY ELECTRCNS                         CMTN  60
+C         CALCULATE NUMBER OF PRIMARY ELECTRCNS                         CMTN  60
 C                                                                       CMTN  70
 C         JTHETA IS THETA CONPCNENT OF COMPTON CLRRENT                  CMTN  80
 C         JPHI IS PHI COMPONENT OF COMPTON CURRENT                      CMTN  90
@@ -471,5 +472,5 @@ C
   100 CONTINUE
       CLOSE(1)
       RETURN
-  200 FORMAT(F5.1," ",1PE10.3)
+  200 FORMAT(F5.2," ",1PE10.3)
       END
