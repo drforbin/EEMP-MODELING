@@ -3,6 +3,7 @@ C     PROGRAM CONTRL (INPUT,OUTFLT,PLOT)                                CNTL  10
 C                                                                       CNTL  20
 C     THIS PROGRAM CCNTROLS THE SUBROUTINES                             CNTL  30
 C                                                                       CNTL  40
+      DOUBLE PRECISION E
       INTEGER OUX                                                       CNTL  60
       COMMON OUX, AP, BP, RNP, TOP,PRECISION                                      CNTL  50
       DIMENSION E(192),TIMX(192),STORE2(10000)                          CNTL  70
@@ -105,7 +106,8 @@ C          CALCULATE EFIELD AT TARGET                                   CNTL 910
 C                                                                       CNTL 929
       IF(R.LE.RMAX) GOTO 3                                              CNTL 930
       DO 1 I=1,190                                                      CNTL 940
- 1    E(I)=E(I)*RMAX/R                                                  CNTL 950
+      E(I)=E(I)*RMAX/R                                                  CNTL 950
+ 1    CONTINUE
 C                                                                       CNTL 960
 C          FIND PEAK VALUE OF EFIELD                                    CNTL 970
 C                                                                       CNTL 980
@@ -163,6 +165,7 @@ C                                                                       EFLD  30
 C                                                                       EFLD  40
 C          CALCULATE THE EFIELD IN THE ABSORPTION REGION                EFLD  50
 C                                                                       EFLD  60
+      DOUBLE PRECISION E,ETHE,EPHI,ETHENW,EPHINW
       DIMENSION E(190),TIMX(190),STORE2(10000)                          EFLD  71
       REAL JTHETA,JPHI                                                  EFLD  80
       INTEGER OUX                                                       EFLD  90
@@ -180,9 +183,9 @@ C                                                                       EFLD 190
   101 FORMAT(4F10.0)                                                    EFLD 210
       DO 61 J=1,100                                                     EFLD 220
       E(J)=0.0                                                          EFLD 230
-C      TIMX(J)=0.1*J                                                    EFLD 231
+      TIMX(J)=0.1*J                                                    EFLD 231
 C         CHANGED 0.1 SHAKES TO 0.01 DF
-      TIMX(J)=PRECISION*J
+C      TIMX(J)=PRECISION*J
   61  CONTINUE                                                          EFLD 240
       DO 71 J=101,190                                                   EFLD 250
       E(J)=0.0                                                          EFLD 260
@@ -205,8 +208,8 @@ C          OUTSIOE LOOP IS FOR CALCULATION IN RETARDED TIME             EFLD 340
 C          INSIDE LOOP IS FOR INTEGRATION IN R AT EACH TIME STEP        EFLD 350
 C                                                                       EFLD 360
       DO 21 I=1,190                                                     EFLD 370
-C      T=T+(1.E-9)*DT                                                   EFLD 371
-C      TIMX(I)=T*(1.E8)                                                 EFLD 372
+      T=T+(1.E-9)*DT                                                    EFLD 371
+      TIMX(I)=T*(1.E8)                                                  EFLD 372
       IT=I                                                              EFLD 380
       IF(I.GT.ITER) GOTO 42                                             EFLD 390
       TP=-DELTAR/2.88E8                                                 EFLD 400
@@ -214,7 +217,7 @@ C      TIMX(I)=T*(1.E8)                                                 EFLD 372
       SIGMA=0.                                                          EFLD 402
       STORE1=0.                                                         EFLD 403
       DO 31 K=1,NDELR                                                   EFLD 410
-      CALL COMPTN(JTHETA,JPHI,TIMX(I)*1.E-8,R,A,THETA,OMEGA,            EFLD 420
+      CALL COMPTN(JTHETA,JPHI,T,R,A,THETA,OMEGA,                        EFLD 420
      1HOB,GAMYLD,TP,PRI,PRI2) 
       CALL CONDCT(SIGMA,PRI,DTP,DT,HOB,R,A,STORE1,STORE2,K,NDELR,PRI2)  EFLD 430
       CALL RNGKUT(ETHENW,ETHE,R,DELTAR,SIGMA,JTHETA)                    EFLD 440
@@ -263,7 +266,7 @@ C                                                                       EFLD 780
       E(IT-5)=0.0                                                       EFLD 795
       RETURN                                                            EFLD 800
  100  FORMAT (I3)                                                       EFLD 810
- 5    FORMAT("   I =",I4,"     TIME =",F6.2," SHAKES     E(T,RMAX) =",  EFLD 820
+ 5    FORMAT("   I =",I4,"     TIME =",F6.1," SHAKES     E(T,RMAX) =",  EFLD 820
      11PE10.3," VOLTS/METER     SIGMA =",1PE10.3," MHO/METER")          EFLD 830
  201  FORMAT(//5X,"ITERATION TERMINATED AFTER",1PE11.4, " SHAKES"//)    EFLD 840
  301  FORMAT(//15X,"*****"/15X,"***** SOLUTION HAS GONE UNSTABLE"       EFLD 850
@@ -389,6 +392,7 @@ C                                                                       RNKT1020
 C         E(I+1) IS CALCULATED FROM E(I)                                RNKT1030
 C         USING THE RUNGE-KUTTA METHOD                                  RNKT1040
 C                                                                       RKKT1050
+      DOUBLE PRECISION RK4,C,RMUO,E,EFUN,RK3,RK1,RK2,E1
       DATA C/3.0E8/,RMUO/12.56637E-7/                                   RNKT1060
       EFUN(R,E)=-(1./R+C*RMUO*SIGMA/2.)*E-COMPTJ*C*RMUO/2.              RNKT1070
       RK1=H*EFUN(R,E)                                                   RNKT1080
@@ -453,6 +457,7 @@ C         F(T) IS THE POMRANNING MODEL FOR TIME DEPENDENCE              FOFT1030
 C         OF NUCLEAR WEAPON YIELD IN RETARDED TIME                      FOFT1040
       INTEGER OUX                                                       FOFT1050
       COMMON OUX,AP,BP,RNP,TOP                                          FOFT1060
+      DOUBLE PRECISION DENOM,TSHAKE
       TSHAKE=1.E8*T                                                     FOFT1070
       DENOM=(BP+AP*EXP((AP+BP)*(TSHAKE-TOP)))*RNP                       FOFT1080
       FOFT=(AP+BP)*EXP(AP*(TSHAKE-TOP))/DENOM                           FOFT1090
@@ -465,6 +470,7 @@ C
 C        SUBROUTINE ADDED BY MERLYN (DRFORBIN) COUSINS
 C        USED TO CREATE empplot.dat FOR USE WITH GNUPLOT
 C
+      DOUBLE PRECISION E
       DIMENSION E(190),TIMX(190)
       OPEN(UNIT=1,FILE='empplot.dat',STATUS='NEW')
       DO 100 I=1,NMAX
